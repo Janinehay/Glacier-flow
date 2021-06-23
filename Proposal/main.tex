@@ -110,15 +110,7 @@ where $\tau_{ij}'$ is the deviatoric stress tensor and $\rho\delta_{ij}$ is the 
 \frac{\partial v_x}{\partial x} + \frac{\partial v_y}{\partial y}  +\frac{\partial v_z}{\partial z} =0   
 \end{equation}
 
-where $v_x$, $v_y$, and $v_z$ are the corresponding $x$,$y$, and $z$ components of the glacier velocity \citep{LEMEUR2004,soucek2008}. Glaciers are bound by the free surface and the bed of the glacier leading to the free surface boundary condition of 
-\begin{equation}\label{free surface}
-\frac{\partial s}{\partial t} + v_x \frac{\partial s}{\partial x}+ v_y \frac{\partial s}{\partial y} -v_z = m_s
-\end{equation}
-where $s$ and is the representation of the free surface, and $m_s$ is the mass balance at the surface \citep{LEMEUR2004, Greve2009}. As well as the bed surface boundary condition is
-\begin{equation}\label{bed}
-\frac{\partial b}{\partial t} + v_x \frac{\partial b}{\partial x}+ v_y \frac{\partial b}{\partial y} -v_z = m_b
-\end{equation}
-where $b$ and is the representation of the free surface, and $m_b$ is the mass balance at the bed \citep{LEMEUR2004, Greve2009}.
+where $v_x$, $v_y$, and $v_z$ are the corresponding $x$,$y$, and $z$ components of the glacier velocity \citep{LEMEUR2004,soucek2008}. 
 \subsubsection{Shallow ice approximation}
 The assumptions made in the SIA are that the ice is shallow and that vertical shearing dominates horizontal sliding. To calculate the ice thickness for the SIA equation \ref{mass conservation} is combined with the free surface boundary condition equation \ref{free surface}, and the bed boundary condition equation \ref{bed}\citep{LEMEUR2004, Greve2009}. First equation \ref{mass conservation} x and y terms are integrated from the glacier bed to the ice surface using Leibniz's rule
 \begin{subequations} \label{xandy}
@@ -135,7 +127,15 @@ When equations \ref{xandy} and \ref{z} are plugged into equation \ref{mass conse
 \begin{equation}
     \int_b^s \frac{\partial v_x}{\partial x}dz+v_x|_{z=s}\frac{\partial s}{\partial x}-v_x|_{z=b}\frac{\partial b}{\partial x}+\int_b^s \frac{\partial v_y}{\partial y}dz+v_y|_{z=s}\frac{\partial s}{\partial y}-v_y|_{z=b}\frac{\partial b}{\partial y}+v_z|_{z=s}-v_z|_{z=b} = 0
 \end{equation}
-The free surface (equation \ref{free surface}) and bed (equation \ref{bed}) boundary conditions of the glacier are then applied to yield
+The glaciers are bound by the free surface and the bed of the glacier leading to the free surface boundary condition of 
+\begin{equation}\label{free surface}
+\frac{\partial s}{\partial t} + v_x \frac{\partial s}{\partial x}+ v_y \frac{\partial s}{\partial y} -v_z = m_s
+\end{equation}
+where $s$ and is the representation of the free surface, and $m_s$ is the mass balance at the surface \citep{LEMEUR2004, Greve2009}. As well as the bed surface boundary condition is
+\begin{equation}\label{bed}
+\frac{\partial b}{\partial t} + v_x \frac{\partial b}{\partial x}+ v_y \frac{\partial b}{\partial y} -v_z = m_b
+\end{equation}
+where $b$ and is the representation of the free surface, and $m_b$ is the mass balance at the bed \citep{LEMEUR2004, Greve2009}. The free surface (equation \ref{free surface}) and bed (equation \ref{bed}) boundary conditions of the glacier are then applied to yield
 \begin{equation}
     \int_b^s \frac{\partial v_x}{\partial x}dz+\int_b^s \frac{\partial v_y}{\partial y}dz+ \frac{\partial s}{\partial t}-\frac{\partial b}{\partial t} -m_s+m_b = 0
 \end{equation}
