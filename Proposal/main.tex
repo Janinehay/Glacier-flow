@@ -13,7 +13,7 @@
 
 }
 
-\date{June 2021} %leave blank
+\date{} %leave blank
 \onehalfspacing
 \setlength{\parindent}{0pt}
 \setlength{\parskip}{1em}
@@ -160,43 +160,8 @@ The ice thickness is then clipped using equation \ref{clip}, which takes any neg
 \begin{equation}\label{clip}
 h^{i+1}=max(\tilde{h}^{i+1},0)
 \end{equation}
-There are two common methods used for discretization in ice sheet models, M1 and M2. Both use a regular mesh with a finite volume discretization \cite{Jarosch2013,Hindmarsh1996,Huybrechts1996}.  Each cell in the mesh has a x and y flux value. The x flux value of $q^x_{k, l+1/2}$  is at the cell boundary between the $(k,l)$ and $(k+1,l) $ cells and the y flux value of $q^y_{k+1/2, l}$ is at the cell boundary between the $(k,l)$ and $(k,l+1)$ cells, see Figure \ref{fig:Grid}. 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=10cm]{Grid.jpg}
-    \caption{Visual depiction of the mesh}
-    \label{fig:Grid}
-\end{figure}
-M1 and M2 relate the fluxes the the surface elevation differences with
-\begin{subequations}
-\begin{gather}
-    q^{y, i+1}_{k, l+1/2}=-D^i_{k, l+1/2}\frac{\tilde{s}^{i+1}_{k, l+1}-(\tilde{s}^{i+1}_{k, l}}{\Delta y} \\
-    q^{x, i+1}_{k+1/2, l}=-D^i_{k+1/2, l}\frac{\tilde{s}^{i+1}_{k+1, l}-\tilde{s}^{i+1}_{k, l}}{\Delta x}
-\end{gather}
-\end{subequations}
-The norm of the surface gradient at the cell boundary is then defined to be 
-\begin{equation}
-    |\nabla s ^i|^{n-1}_{k+1/2,l} = \left[\left( \frac{s^i_{k,l+1}-s^i_{k,l-1}+s^i_{k+1,l-1}}{4\Delta y}\right)^2+\left( \frac{s^i_{k+1,l}-s^i_{k,l}}{\Delta x}\right)^2 \right]^{\frac{n-1}{2}}
-\end{equation}
 
-
-The M1 discritization used the average value of $h$ over the cell
-\begin{equation}
-    D^i_{k+1/2,l}=\Gamma\left(\frac{h^i_{k,l}+h^i_{k+1,l}}{2}\right)^{n+2}|\nabla s ^i|^{n-1}_{k+1/2,l}
-\end{equation}
-and the M2 discritization is the average over $h^{n+2}$
-\begin{equation}
-    D^i_{k+1/2,l}=\Gamma\left(\frac{{h^i_{k,l}}^{n+2}+{h^i_{k+1,l}}^{n+2}}{2}\right)|\nabla s ^i|^{n-1}_{k+1/2,l}
-\end{equation}
-where $\Gamma$ is a proportionality coefficient relative the stress of the ice \citep{Jarosch2013}. 
-
-The problem with the above method is that the spatial discretizations used to solve for the diffusion equations (equation \ref{diffusion1}) do not preserve positivity in specific scenarios, such as u-shaped valleys, leading to negative ice thickness values when the terrain is steep and the ice is thin. When this happens, equation \ref{clip} sets the value back to zero, violating conservation of mass \citep{Jarosch2013, Hindmarsh1996}. The easiest way to demonstrate this is by rewriting the ice thickness equation \ref{ice thickness} as
-\begin{equation}\label{hypero}
-\frac{\partial h}{\partial t} - \nabla \cdot \left( \Gamma h^{n+2} |\nabla(b+h)|^{n-1}\nabla(b+h)\right) =m
-\end{equation}
-when the bed slope is small or the ice is thick the  $\nabla(b+h)$ term is dominated by the ice thickness and equation \ref{hypero} is parabolic, and so discretizations schemes designed for parabolic terrain will preserve the positivity of our ice thickness \cite{Jarosch2013}. In steep bed terrain or when the ice is this, the $\nabla(b+h)$ term is dominated by the bed slope, making equation \ref{hypero} hyperbolic \cite{Jarosch2013}. The discretization schemes used in a parabolic scenario may than produce negative ice thickness values.
-
-
+The discretization of the ice sheet depends on the solving method used
 
 \subsubsection{Glen's flow law flux}
 Glen's flow law is one method used to determine the relationship between the stress and strain of the ice  \citep{AHLKRONA2016}. Glen's flow law is defined as
@@ -249,9 +214,70 @@ which can be integrated from the bed height to the free surface of the glacier i
 \end{gather}
 \end{subequations}
 giving us the flux method used in the standard solving method of the SIA \citep{Jarosch2013, Greve2009}.
+\subsubsection{M1 and M2 Method}
+Two common methods used for discretization in ice sheet models are the M1 and M2 method. Both use a regular mesh with a finite volume discretization \cite{Jarosch2013,Hindmarsh1996,Huybrechts1996}.  Each cell in the mesh has a x and y flux value. The x flux value of $q^x_{k, l+1/2}$  is at the cell boundary between the $(k,l)$ and $(k+1,l) $ cells and the y flux value of $q^y_{k+1/2, l}$ is at the cell boundary between the $(k,l)$ and $(k,l+1)$ cells, see Figure \ref{fig:Grid}. 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=10cm]{Grid.jpg}
+    \caption{Visual depiction of the mesh}
+    \label{fig:Grid}
+\end{figure}
+M1 and M2 relate the fluxes the the surface elevation differences with
+\begin{subequations}
+\begin{gather}
+    q^{y, i+1}_{k, l+1/2}=-D^i_{k, l+1/2}\frac{\tilde{s}^{i+1}_{k, l+1}-(\tilde{s}^{i+1}_{k, l}}{\Delta y} \\
+    q^{x, i+1}_{k+1/2, l}=-D^i_{k+1/2, l}\frac{\tilde{s}^{i+1}_{k+1, l}-\tilde{s}^{i+1}_{k, l}}{\Delta x}
+\end{gather}
+\end{subequations}
+The norm of the surface gradient at the cell boundary is then defined to be 
+\begin{equation}
+    |\nabla s ^i|^{n-1}_{k+1/2,l} = \left[\left( \frac{s^i_{k,l+1}-s^i_{k,l-1}+s^i_{k+1,l-1}}{4\Delta y}\right)^2+\left( \frac{s^i_{k+1,l}-s^i_{k,l}}{\Delta x}\right)^2 \right]^{\frac{n-1}{2}}
+\end{equation}
 
 
-\subsubsection{MUSCL flux method}
+The M1 discritization used the average value of $h$ over the cell
+\begin{equation}
+    D^i_{k+1/2,l}=\Gamma\left(\frac{h^i_{k,l}+h^i_{k+1,l}}{2}\right)^{n+2}|\nabla s ^i|^{n-1}_{k+1/2,l}
+\end{equation}
+and the M2 discritization is the average over $h^{n+2}$
+\begin{equation}
+    D^i_{k+1/2,l}=\Gamma\left(\frac{{h^i_{k,l}}^{n+2}+{h^i_{k+1,l}}^{n+2}}{2}\right)|\nabla s ^i|^{n-1}_{k+1/2,l}
+\end{equation}
+where $\Gamma$ is a proportionality coefficient relative the stress of the ice \citep{Jarosch2013}. 
+
+The problem with the above method is that the spatial discretizations used to solve for the diffusion equations (equation \ref{diffusion1}) do not preserve positivity in specific scenarios, such as u-shaped valleys, leading to negative ice thickness values when the terrain is steep and the ice is thin. When this happens, equation \ref{clip} sets the value back to zero, violating conservation of mass \citep{Jarosch2013, Hindmarsh1996}. The easiest way to demonstrate this is by rewriting the ice thickness equation \ref{ice thickness} as
+\begin{equation}\label{hypero}
+\frac{\partial h}{\partial t} - \nabla \cdot \left( \Gamma h^{n+2} |\nabla(b+h)|^{n-1}\nabla(b+h)\right) =m
+\end{equation}
+when the bed slope is small or the ice is thick the  $\nabla(b+h)$ term is dominated by the ice thickness and equation \ref{hypero} is parabolic, and so discretizations schemes designed for parabolic terrain will preserve the positivity of our ice thickness \cite{Jarosch2013}. In steep bed terrain or when the ice is this, the $\nabla(b+h)$ term is dominated by the bed slope, making equation \ref{hypero} hyperbolic \cite{Jarosch2013}. The discretization schemes used in a parabolic scenario may than produce negative ice thickness values.
+\subsubsection{Upstream Method}
+The upstream method is based on writing equation \ref{ice thickness} in the form
+\begin{equation} \label{upstream}
+    \frac{\partial h}{\partial t} + \nabla \cdot (h u) = m
+\end{equation}
+
+$u$ is defined as
+
+\begin{equation}
+    u = -\Gamma h^{n+1}|\nabla s|^{n+1}\nabla s
+\end{equation}
+a simple upwinding scheme applied to h defines the upstream ice thickness as 
+\begin{align}
+    hup^i_{k+1/2,l}= 
+	\begin{cases}
+    h^i_{k,l}& \text{if } s^i_{k+1,l} \leq s^i_{k,l} \\
+    h^i_{k+1,l}              & \text{if }  s^i_{k+1,l} > s^i_{k,l}
+	\end{cases}
+\end{align}
+
+the diffusivity is then 
+\begin{equation}
+D^i_{k+1/2,l} = \Gamma \left( \frac{h^i_{k,l} - h^i_{k+1,l}}{2}\right)^{n+1} hup^i_{k+1/2,l}\left[\left( \frac{s^i_{k,l+1}-s^i_{k,l-1}+ s^i{k+1,l+1}-s^i_{k+1,l-1}}{4 \Delta y}\right)^2+ \left(\frac{s^i_{k+1,l}-s^i_{k,l}}{\Delta x}\right)^2\right]
+\end{equation}
+And use a forward Euler step to solve for equation \ref{upstream} \cite{Jarosch2013}. 
+
+
+\subsubsection{MUSCL Flux Method}
 A mass conserving solution, called the MUSCL superbee method from here on, was proposed by \citet{Jarosch2013} as a possible solution to address the violation of conservation of mass caused by the stand solving method for the SIA. This method addresses the root of the conservation problem, the calculation of $D$, the diffusion coefficient. To do this, the second-order Monotone Upstream-centered Schemes for Conservation Laws (MUSCL) were modified for SIA. This flux limiter modifies the ice flux to be 
 \begin{subequations}\label{fluxlimiter}
 \begin{gather}
@@ -266,6 +292,51 @@ The flux, $q$, is replaced in equation \ref{ice thickness} with equation \ref{fl
 \frac{\partial h}{\partial t} + \nabla \cdot (\omega h^{n+2}) = m 
 \end{equation}
 This flux limiter scheme is positive preserving when equation \ref{jarosch} becomes hyperbolic, and improves conservation of mass in areas where the ice is thin and the terrain is steep \citep{Jarosch2013}. 
+
+The MUSCL scheme has the unique property where we separate the $k+1/2$ boundary into both an up and down portion. So we define our boundary height as 
+\begin{subequations}
+\begin{gather}
+h^i_{k+\frac{1}{2}^-,l} = h^i_{k,l} + \frac{1}{2}\phi(r_{k,l}(h^i_{k+1,l}-h^i_{k,l})\\
+h^i_{k+\frac{1}{2}^+,l} = h^i_{k+1,l} + \frac{1}{2}\phi(r_{k+1,l}(h^i_{k+2,l}-h^i_{k+1,l})\\
+h^i_{k-\frac{1}{2}^-,l} = h^i_{k-1,l} + \frac{1}{2}\phi(r_{k-1,l}(h^i_{k,l}-h^i_{k-1,l})\\
+h^i_{k-\frac{1}{2}^+,l} = h^i_{k,l} + \frac{1}{2}\phi(r_{k,l}(h^i_{k+1,l}-h^i_{k,l})
+\end{gather}
+\end{subequations}
+
+where $\phi$ is the flux limiter and $r$ is defined as
+\begin{equation}
+r_{k,l} = \frac{h^i_{k,l}-h^i_{k-1,l}}{h^i_{k+1}-h^i_{k,l}}
+\end{equation}
+the plus and minus flux terms at the boundary are then define as
+\begin{subequations}
+\begin{gather}
+D^i_{k+\frac{1}{2}^+} = \Gamma {h^i_{k+\frac{1}{2}^+,l}}^{n+2}|\nabla s^i|^{n-1}_{k+1/2,l}\\
+D^i_{k+\frac{1}{2}^-} = \Gamma {h^i_{k+\frac{1}{2}^-,l}}^{n+2}|\nabla s^i|^{n-1}_{k+1/2,l}\\
+\end{gather}
+\end{subequations}
+The minimum and maximum diffusivity are then defined as 
+\begin{subequations}
+\begin{gather}
+D^i_{k+1/2,l,min} = min(D^i_{k+\frac{1}{2}^+}, D^i_{k+\frac{1}{2}^-} )\\
+ D^i_{k+1/2,l,max}  = max(D^i_{k+\frac{1}{2}^+}, D^i_{k+\frac{1}{2}^-})
+\end{gather}
+\end{subequations}
+
+
+and we construct the diffusivity at the cell boundary \cite{Jarosch2013}.
+\begin{equation}
+    D^i_{k+1/2,l}= 
+\begin{cases}
+    D^i_{k+1/2,l,min}& \text{if } s^i_{k+1,l} \leq s^i_{k,l} \text{and } h^i_{k+\frac{1}{2}^-,l} \leq h^i_{k+\frac{1}{2}^+,l}\\
+    D^i_{k+1/2,l,max}              & \text{if }  s^i_{k+1,l} \leq s^i_{k,l} \text{and } h^i_{k+\frac{1}{2}^-,l} > h^i_{k+\frac{1}{2}^+,l}\\
+    D^i_{k+1/2,l,max}& \text{if } s^i_{k+1,l} > s^i_{k,l} \text{and } h^i_{k+\frac{1}{2}^-,l} \leq h^i_{k+\frac{1}{2}^+,l}\\
+    D^i_{k+1/2,l,min}              & \text{if }  s^i_{k+1,l} > s^i_{k,l} \text{and } h^i_{k+\frac{1}{2}^-,l} > h^i_{k+\frac{1}{2}^+,l}\\
+\end{cases}
+\end{equation}
+and the diffusivisites for the $D^i_{k-1/2,l}$ , $D^i_{k,l-1/2}$ , and $D^i_{k,l+1/2}$ are similarly constructed. 
+
+
+
 \begin{figure}[H]
     \centering
     \includegraphics[width=13cm]{Iceflux.png}
@@ -283,7 +354,7 @@ This flux limiter scheme is positive preserving when equation \ref{jarosch} beco
 
 The MUSCL superbee method was attempted to be adapted for more complex topography by \citet{Clarke2015}, who found that when adapting the diffusivity constants to their model, they still found violations of conservation of mass occasionally. Their solution to this was to check for conservation violations at every timestep, and if one was found, apply an adaptive time step and recalculate the ice thickness. 
 
-
+\subsubsection{Exact Solutions to the Cliff Benchmark}
 
 \subsection{Research Gaps}
 Many of the models based on the SIA have research gaps. The one being addressed in this research is the violation of mass conservation that arises from current methods of solving the SIA. The standard method does not conserve mass in in steep terrain where the bed is thin due to the spatial discretization. The the MUSCL superbee method proposed by \citet{Jarosch2013} is not applicable to glaciers with complex topography or glaciers with multiple flow lines, as is discussed in \citet{Maussion2019}. This means that it is not applicable in many real world applications currently, and only works as a benchmark to judge your results against. There are also new numerical solving methods for these types of conservation problems, called conservative methods for finite difference methods associated with hyperbolic equations, which may work to better model glaciers when using the SIA. 
@@ -295,14 +366,14 @@ Many of the models based on the SIA have research gaps. The one being addressed 
 
 The proposed research is on applying numerical methods to glacier models. The research starts by reproducing the results from the \citet{Jarosch2013} paper. For this, first a basic mass balance model needs to be set up. This mass balance model can then be used to implement the SIA. By reproducing these results, we are setting up the basis to be able to expand a mass conservation solution to the shallow ice-approximation into more complex glacier topology. A method of addressing this is may be expanding on the method for conserving mass balance presented in \citet{Jarosch2013} paper so that it can be applied to varying glacier beds and flow lines. Another method may be by using a different numerical solver method for the shallow ice model.
 \subsection{Model creation}
-To implement this research, the first step is to reproduce the results from the standard method and \citet{Jarosch2013} mass conserving method. Then, a different numerical method will be implemented for the SIA that will address the need for mass conservation in the SIA. The first step in this process was identifying the glacier modeling equations that will be used. The second step is looking at state-of-the-art numerical techniques that can be applied to the standard ice approximation. One of these methods must then be applied to the glacier modeling equations and write up the model so that it can be forced with mass balance data.
+To implement this research, the first step is to reproduce the results from the standard method and \citet{Jarosch2013} mass conserving method as our 1D benchmark test for the model. This has been completed. We then extend this model so that it is two dimensional and can run over multiple bed types. To this end we will start with extending the upstream solving method for the shallow ice approximation, since this method is used in the one dimensional model first done by \citet{Jarosch2013} and in the OGGM model by \citet{Maussion2019}. The method used to extend the upstream solving method into two dimensions will then be applied to both the M1 method and the MUSCL method. Then, a TVD numerical method with an additional step, such as is shown in \citet{Gottlieb1996} will be applied to both the 1D and 2D versions of the model. The 2D version of the model will then be made to accept varible bed shapes and branching before being tested against the benchmarks and applied to Peyto glacier. The first step in this process was identifying the glacier modeling equations that will be used. The second step is looking at state-of-the-art numerical techniques that can be applied to the standard ice approximation. One of these methods must then be applied to the glacier modeling equations and write up the model so that it can be forced with mass balance data.
 \subsection{Synthetic data}
 For model validation, the model will first be run with synthetic data. The model results will be compared against the mass conserving method done by \citet{Jarosch2013} the exact solutions from \citet{Bueler2005}, and the standard solving method described in \citet{Jarosch2013, Hindmarsh1996}. For this section there will be no data requirements, the SIA will be forced with synthetic mass balance data for the cliff benchmark. 
 \subsection{Realistic data}
 The third part of this research will be running the model over various glacier basins using the mass balance models produced by either the Cold Regions Hydrological model (CHRM) or the Structure for Unifying Multiple modelling Alternatives (SUMMA). 
 
-\subsubsection{Study area}
-The first two study areas that will be looked at are Peyto Glacier and Athabasca Glacier. The Peyto glacier is a mountain outlet glacier from the Waputik ice field. It is one of the glaciers currently being monitored by the University of Saskatchewan.It was first surveyed in 1933. Mass balance data has been been collected since 1965 and is available though \citet{WGMS2020}. The Athabasca glacier is an outlet glacier of the Columbia ice field. It is also currently being monitored by the University of Saskatchewan. It was first surveyed in 1945. Mass balance data has been collected since 1980 and is available through \citet{WGMS2020}.
+\subsection{Study area}
+The Study areas that will be looked at is Peyto Glacier. Peyto glacier is a mountain outlet glacier from the Waputik ice field. It is one of the glaciers currently being monitored by the University of Saskatchewan.It was first surveyed in 1933. Mass balance data has been been collected since 1965 and is available though \citet{WGMS2020}. 
 
 
 \subsection{Stretch goal}
